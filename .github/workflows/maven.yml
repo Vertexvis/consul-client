@@ -4,6 +4,6 @@ on: push
 
 jobs:
   ci-cd:
-    uses: Vertexvis/actions/.github/workflows/java-ci-cd.yml@main 
+    uses: Vertexvis/actions/.github/workflows/java-ci-cd.yml@main
     secrets:
       inherit
