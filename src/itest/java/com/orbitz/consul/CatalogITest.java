@@ -284,7 +284,7 @@ public class CatalogITest extends BaseIntegrationTest {
 
         String nodeName = "node";
         String serviceName = UUID.randomUUID().toString();
-        String serviceId = createAutoDeregisterServiceId();
+        String serviceId = UUID.randomUUID().toString(); // Don't use createAutoDeregisterServiceId() for catalog registration
         String catalogId = UUID.randomUUID().toString();
 
         CatalogRegistration registration = ImmutableCatalogRegistration.builder()
@@ -302,16 +302,25 @@ public class CatalogITest extends BaseIntegrationTest {
 
         catalogClient.register(registration);
 
-        CompletableFuture<CatalogNode> cf = new CompletableFuture<>();
-        catalogClient.getNode(nodeName, QueryOptions.BLANK, callbackFuture(cf));
+        try {
+            CompletableFuture<CatalogNode> cf = new CompletableFuture<>();
+            catalogClient.getNode(nodeName, QueryOptions.BLANK, callbackFuture(cf));
 
-        CatalogNode node = cf.get(1, TimeUnit.SECONDS);
+            CatalogNode node = cf.get(1, TimeUnit.SECONDS);
 
-        assertEquals(nodeName, node.getNode().getNode());
+            assertEquals(nodeName, node.getNode().getNode());
 
-        Service service = node.getServices().get(serviceId);
-        assertNotNull(service);
-        assertEquals(serviceName, service.getService());
+            Service service = node.getServices().get(serviceId);
+            assertNotNull(service);
+            assertEquals(serviceName, service.getService());
+        } finally {
+            // Clean up using catalog deregistration since we used catalog registration
+            CatalogDeregistration deregistration = ImmutableCatalogDeregistration.builder()
+                    .node(nodeName)
+                    .serviceId(serviceId)
+                    .build();
+            catalogClient.deregister(deregistration);
+        }
     }
 
     private static <T> ConsulResponseCallback<T> callbackFuture(CompletableFuture<T> cf) {
