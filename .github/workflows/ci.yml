@@ -22,12 +22,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: AWS Authentication
-        uses: Vertexvis/actions/aws-auth@main
-        with:
-          setup-sbt: false
-          setup-ecr: false
-          setup-profiles: true
+      # - name: AWS Authentication
+      #   uses: Vertexvis/actions/aws-auth@main
+      #   with:
+      #     setup-sbt: false
+      #     setup-ecr: false
+      #     setup-profiles: true
 
       - name: Build and publish
         run: |
